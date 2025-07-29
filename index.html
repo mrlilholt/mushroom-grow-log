@@ -103,6 +103,10 @@
       <label>Time-to-Fruit (days) <input type="number" name="timeToFruit"></label>
       <label>Fresh Weight/Yield (g) <input type="number" step="0.1" name="yield"></label>
       <label>Notes <textarea name="notes"></textarea></label>
+      <label>
+        <input type="checkbox" id="lockFields"> 🔒 Lock Auto-Filled Fields
+      </label>
+      
       <button type="submit">Save Entry</button>
     </form>
 
@@ -313,6 +317,112 @@ function populateSpeciesDropdown(id) {
 
 populateSpeciesDropdown('speciesDaily');
 populateSpeciesDropdown('speciesHarvest');
+
+// Auto-calculate and auto-fill Harvest fields (Pin Date, Species, Treatment, Time-to-Fruit, Averages)
+document.querySelector('#harvestForm').addEventListener('input', () => {
+  const pinDateInput = document.querySelector('#harvestForm [name="pinDate"]');
+  const harvestDateInput = document.querySelector('#harvestForm [name="date"]').value;
+  const blockValue = document.querySelector('#harvestForm [name="block"]').value;
+  const speciesField = document.querySelector('#harvestForm [name="species"]');
+  const treatmentField = document.querySelector('#harvestForm [name="treatment"]');
+  const lockToggle = document.getElementById('lockFields');
+
+  // Auto-fill Pin Date from Block Info
+  if (blockValue) {
+    const blockLogs = JSON.parse(localStorage.getItem('block')) || [];
+    const blockMatch = blockLogs.find(entry => entry.block === blockValue && entry.pinDate);
+    if (blockMatch && !pinDateInput.value) {
+      pinDateInput.value = blockMatch.pinDate;
+      flashHighlight(pinDateInput);
+    }
+
+    // Auto-fill Species & Treatment from latest Daily log for this block
+    const dailyLogs = JSON.parse(localStorage.getItem('daily')) || [];
+    const blockDailyLogs = dailyLogs
+      .filter(entry => entry.block === blockValue)
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    if (blockDailyLogs.length > 0) {
+      const latest = blockDailyLogs[0];
+      if (!speciesField.value) {
+        speciesField.value = latest.species;
+        flashHighlight(speciesField);
+      }
+      if (!treatmentField.value) {
+        treatmentField.value = latest.treatment;
+        flashHighlight(treatmentField);
+      }
+    }
+  }
+
+  // Calculate Time-to-Fruit & Averages
+  if (pinDateInput.value && harvestDateInput && blockValue) {
+    const pinDate = new Date(pinDateInput.value);
+    const harvestDate = new Date(harvestDateInput);
+
+    const diffDays = Math.round((harvestDate - pinDate) / (1000 * 60 * 60 * 24));
+    const timeField = document.querySelector('#harvestForm [name="timeToFruit"]');
+    timeField.value = diffDays;
+    flashHighlight(timeField);
+
+    const dailyLogs = JSON.parse(localStorage.getItem('daily')) || [];
+    const filtered = dailyLogs.filter(entry => {
+      return entry.block === blockValue &&
+        new Date(entry.date) >= pinDate &&
+        new Date(entry.date) <= harvestDate;
+    });
+
+    if (filtered.length > 0) {
+      const avg = (arr, key) => arr.reduce((sum, e) => sum + parseFloat(e[key] || 0), 0) / arr.length;
+
+      const avgTemp = document.querySelector('#harvestForm [name="avgTemp"]');
+      const avgHumidity = document.querySelector('#harvestForm [name="avgHumidity"]');
+      const avgCo2 = document.querySelector('#harvestForm [name="avgCo2"]');
+
+      avgTemp.value = avg(filtered, 'temp').toFixed(1);
+      avgHumidity.value = avg(filtered, 'humidity').toFixed(1);
+      avgCo2.value = avg(filtered, 'co2').toFixed(0);
+
+      flashHighlight(avgTemp);
+      flashHighlight(avgHumidity);
+      flashHighlight(avgCo2);
+    }
+  }
+
+  // Apply Lock/Unlock state
+  toggleLockFields(lockToggle.checked);
+});
+
+// Lock or unlock auto-filled fields
+document.getElementById('lockFields').addEventListener('change', function() {
+  toggleLockFields(this.checked);
+});
+
+function toggleLockFields(lock) {
+  const fieldsToLock = [
+    '#harvestForm [name="pinDate"]',
+    '#harvestForm [name="species"]',
+    '#harvestForm [name="treatment"]',
+    '#harvestForm [name="avgTemp"]',
+    '#harvestForm [name="avgHumidity"]',
+    '#harvestForm [name="avgCo2"]',
+    '#harvestForm [name="timeToFruit"]'
+  ];
+
+  fieldsToLock.forEach(selector => {
+    const field = document.querySelector(selector);
+    if (field) field.readOnly = lock;
+  });
+}
+
+// Green flash highlight
+function flashHighlight(element) {
+  element.style.transition = "background-color 0.5s";
+  element.style.backgroundColor = "#c8f7c5"; 
+  setTimeout(() => {
+    element.style.backgroundColor = "";
+  }, 800);
+}
 </script>
 </body>
 </html>
