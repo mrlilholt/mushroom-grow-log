@@ -6,88 +6,186 @@
   <meta name="theme-color" content="#4caf50">
   <title>Mushroom Grow Log</title>
   <style>
+    /* ===== GLOBAL RESET ===== */
     body {
       font-family: 'Arial', sans-serif;
       margin: 0;
-      background: #f9f9f9;
+      background: #f5f7fa;
       color: #333;
+      padding-bottom: 80px;
     }
-    h2 { margin: 16px; }
-    .tab { padding: 16px; }
-    .hidden { display: none; }
+    h1, h2 {
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    h2 {
+      font-size: 20px;
+      margin: 16px;
+    }
 
+    /* ===== CARD CONTAINERS ===== */
+    .tab {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      padding: 20px;
+    }
 
-    /* Mushroom Cards */
+    /* ===== FORMS ===== */
+    label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #555;
+      display: block;
+      margin-top: 12px;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 4px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      background: #fafafa;
+    }
+    textarea { resize: none; height: 60px; }
+    button {
+      margin-top: 14px;
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      background: #4caf50;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover { background: #43a047; }
+
+    /* ===== SEARCH BAR ===== */
+    .search-bar {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    /* ===== TABLES ===== */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background: #f0f2f5;
+      color: #666;
+      font-weight: 600;
+    }
+    tr:nth-child(even) { background: #fafafa; }
+
+    /* ===== METRIC CARDS (Dashboard) ===== */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .metric-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .metric-title { font-size: 14px; color: #888; }
+    .metric-value { font-size: 20px; font-weight: bold; margin-top: 4px; color: #333; }
+
+    /* ===== HOME CARDS ===== */
     #homeGrid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 16px;
-      padding: 16px;
     }
     .mushroom-card {
       background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
       padding: 16px;
       cursor: pointer;
       transition: transform 0.2s;
     }
-    .mushroom-card:hover { transform: translateY(-3px); }
-    .mushroom-title { font-weight: bold; font-size: 16px; margin-bottom: 6px; }
+    .mushroom-card:hover { transform: translateY(-4px); }
+    .mushroom-title { font-size: 16px; font-weight: bold; margin-bottom: 4px; }
     .mushroom-meta { font-size: 13px; color: #666; }
 
-    /* Bottom Nav */
-    .bottom-nav {
-      position: fixed; bottom: 0; width: 100%;
-      background: #fff; border-top: 1px solid #ddd;
-      display: flex; justify-content: space-around; padding: 8px 0;
-    }
-    .bottom-nav button {
-      background: none; border: none; font-size: 12px; color: #666;
-      display: flex; flex-direction: column; align-items: center; cursor: pointer;
-    }
-    .bottom-nav button.active { color: #4caf50; }
-    .bottom-nav i { font-size: 20px; margin-bottom: 4px; }
-
-    /* FAB */
+    /* ===== FLOATING ACTION BUTTON ===== */
     .fab {
       position: fixed;
-      bottom: 70px;
+      bottom: 80px;
       right: 20px;
       background: #4caf50;
       color: white;
       border: none;
       border-radius: 50%;
-      width: 56px; height: 56px;
-      display: flex; align-items: center; justify-content: center;
+      width: 56px;
+      height: 56px;
       font-size: 28px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
       cursor: pointer;
     }
 
-    /* Modal */
+    /* ===== MODALS ===== */
     .modal {
-      display: none; position: fixed; top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      justify-content: center; align-items: center;
+      display: none;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
     }
     .modal-content {
-      background: #fff; padding: 20px; border-radius: 12px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 16px;
       width: 90%; max-width: 400px;
     }
     .modal-header { font-weight: bold; margin-bottom: 10px; }
     .close-btn { float: right; cursor: pointer; color: #999; font-size: 18px; }
-    label { display: block; margin-top: 10px; font-size: 14px; }
-    input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; border: 1px solid #ddd; border-radius: 6px; }
-    button.save-btn {
-      margin-top: 12px; width: 100%; padding: 10px; background: #4caf50; color: white; border: none; border-radius: 6px;
-      font-size: 16px; cursor: pointer;
-    }
 
-    input[type="text"].search-bar { width: 100%; padding: 8px; margin-top: 10px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #fff; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    /* ===== BOTTOM NAV ===== */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: #fff;
+      border-top: 1px solid #ddd;
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 0;
+    }
+    .bottom-nav button {
+      background: none;
+      border: none;
+      font-size: 12px;
+      color: #666;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+    }
+    .bottom-nav button.active { color: #4caf50; }
+    .bottom-nav i { font-size: 20px; margin-bottom: 4px; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -101,146 +199,73 @@
   <button class="fab" onclick="openAddBlockModal()">+</button>
 </div>
 
-<!-- DAILY -->
+<!-- DAILY DATA (Card Layout) -->
 <div id="daily" class="tab hidden">
-  <h2>Daily Data Entry</h2>
-  <form id="dailyForm">
-    <label>Date <input type="date" name="date" required></label>
-    <label>Species <select name="species" id="speciesDaily"></select></label>
-    <label>Treatment 
-      <select name="treatment" id="treatmentDaily">
-        <option value="4hr">4hr</option><option value="8hr">8hr</option>
-        <option value="12hr">12hr</option><option value="No Light">No Light</option>
-      </select>
-    </label>
-    <label>Block <select name="block" id="blockDaily"></select></label>
-    <label>Growth (mm/day) <input type="number" step="0.1" name="growth"></label>
-    <label>Temp (F) <input type="number" step="0.1" name="temp"></label>
-    <label>Rel Humidity (%) <input type="number" step="0.1" name="humidity"></label>
-    <label>CO₂ (ppm) <input type="number" step="1" name="co2"></label>
-    <label>Notes <textarea name="notes"></textarea></label>
-    <label>Flush Height (mm) <input type="number" step="0.1" name="flushHeight"></label>
-    <button type="submit">Save Entry</button>
-  </form>
-  <input type="text" id="searchDaily" class="search-bar" placeholder="Search Daily Logs..." onkeyup="filterTable('dailyTable', this.value)">
-  <button onclick="exportCSV('daily')">Export Daily Data CSV</button>
-  <table id="dailyTable">
-    <thead>
-      <tr><th>Date</th><th>Species</th><th>Treatment</th><th>Block</th><th>Growth</th><th>Temp</th><th>Humidity</th><th>CO₂</th><th>Notes</th><th>Flush Height</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <div class="card">
+    <h2>Daily Data Entry</h2>
+    <form id="dailyForm">
+      <label>Date <input type="date" name="date" required></label>
+      <label>Species <select name="species" id="speciesDaily"></select></label>
+      <label>Treatment 
+        <select name="treatment" id="treatmentDaily">
+          <option value="4hr">4hr</option><option value="8hr">8hr</option>
+          <option value="12hr">12hr</option><option value="No Light">No Light</option>
+        </select>
+      </label>
+      <label>Block <select name="block" id="blockDaily"></select></label>
+      <label>Growth (mm/day) <input type="number" step="0.1" name="growth"></label>
+      <label>Temp (F) <input type="number" step="0.1" name="temp"></label>
+      <label>Rel Humidity (%) <input type="number" step="0.1" name="humidity"></label>
+      <label>CO₂ (ppm) <input type="number" step="1" name="co2"></label>
+      <label>Notes <textarea name="notes"></textarea></label>
+      <label>Flush Height (mm) <input type="number" step="0.1" name="flushHeight"></label>
+      <button type="submit">Save Entry</button>
+    </form>
+  </div>
+  <div class="card">
+    <input type="text" id="searchDaily" class="search-bar" placeholder="Search Daily Logs...">
+    <table id="dailyTable">
+      <thead><tr><th>Date</th><th>Species</th><th>Treatment</th><th>Block</th><th>Growth</th><th>Temp</th><th>Humidity</th><th>CO₂</th><th>Notes</th><th>Flush Height</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
 </div>
 
-<!-- HARVEST -->
-<div id="harvest" class="tab hidden">
-  <h2>Harvest Data Entry</h2>
-  <form id="harvestForm">
-    <label>Date <input type="date" name="date" required></label>
-    <label>Species <select name="species" id="speciesHarvest"></select></label>
-    <label>Treatment (hr) 
-      <select name="treatment" id="treatmentHarvest">
-        <option value="4hr">4hr</option><option value="8hr">8hr</option>
-        <option value="12hr">12hr</option><option value="No Light">No Light</option>
-      </select>
-    </label>
-    <label>Block <select name="block" id="blockHarvest"></select></label>
-    <label>Avg Temp (F) <input type="number" step="0.1" name="avgTemp"></label>
-    <label>Avg Humidity (%) <input type="number" step="0.1" name="avgHumidity"></label>
-    <label>Avg CO₂ (ppm) <input type="number" step="1" name="avgCo2"></label>
-    <label>Cap Diameter (mm) <input type="number" step="0.1" name="capDiameter"></label>
-    <label>Stem Length (mm) <input type="number" step="0.1" name="stemLength"></label>
-    <label>Flush Height (mm) <input type="number" step="0.1" name="flushHeight"></label>
-    <label>Flush Width (mm) <input type="number" step="0.1" name="flushWidth"></label>
-    <label>Flush Length (mm) <input type="number" step="0.1" name="flushLength"></label>
-    <label>Pin-Set Date <input type="date" name="pinDate"></label>
-    <label>Time-to-Fruit (days) <input type="number" name="timeToFruit"></label>
-    <label>Fresh Weight/Yield (g) <input type="number" step="0.1" name="yield"></label>
-    <label>Notes <textarea name="notes"></textarea></label>
-    <label><input type="checkbox" id="lockFields"> 🔒 Lock Auto-Filled Fields</label>
-    <button type="submit">Save Entry</button>
-  </form>
-  <input type="text" id="searchHarvest" class="search-bar" placeholder="Search Harvest Logs..." onkeyup="filterTable('harvestTable', this.value)">
-  <button onclick="exportCSV('harvest')">Export Harvest Data CSV</button>
-  <table id="harvestTable">
-    <thead>
-      <tr><th>Date</th><th>Species</th><th>Treatment</th><th>Block</th><th>Avg Temp</th><th>Humidity</th><th>CO₂</th><th>Cap</th><th>Stem</th><th>Flush H</th><th>Flush W</th><th>Flush L</th><th>Pin Date</th><th>Time</th><th>Yield</th><th>Notes</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
-
-<!-- BLOCK -->
-<div id="block" class="tab hidden">
-  <h2>Block Information</h2>
-  <form id="blockForm">
-    <label>Block <select name="block" id="blockInfo"></select></label>
-    <label>Start Date <input type="date" name="startDate"></label>
-    <label>Pin Date <input type="date" name="pinDate"></label>
-    <label>Harvest Date <input type="date" name="harvestDate"></label>
-    <label>Lot Number <input type="text" name="lotNumber"></label>
-    <label>Generation <input type="text" name="generation"></label>
-    <label>Growth Rate <input type="text" name="growthRate"></label>
-    <label>Slice Type <input type="text" name="sliceType"></label>
-    <label>Time Increase <input type="text" name="timeIncrease"></label>
-    <button type="submit">Save Block</button>
-  </form>
-  <input type="text" id="searchBlock" class="search-bar" placeholder="Search Block Info..." onkeyup="filterTable('blockTable', this.value)">
-  <button onclick="exportCSV('block')">Export Block Info CSV</button>
-  <table id="blockTable">
-    <thead>
-      <tr><th>Block</th><th>Start</th><th>Pin</th><th>Harvest</th><th>Lot</th><th>Gen</th><th>Growth Rate</th><th>Slice Type</th><th>Time+</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
-
-<!-- DASHBOARD -->
+<!-- DASHBOARD (Metric Cards) -->
 <div id="dashboard" class="tab hidden">
   <h2>Quick Summary Dashboard</h2>
-  <div id="keyStats"><h3>Key Metrics</h3><ul id="metricsList"></ul></div>
-  <div id="activeBlocks"><h3>Active Blocks</h3><table><thead><tr><th>Block</th><th>Pin Date</th><th>Harvest Date</th><th>Days Since Pin</th></tr></thead><tbody id="activeBlocksBody"></tbody></table></div>
-  <div id="envTrends"><h3>Environmental Trends (Last 7 Days)</h3><canvas id="envChart" width="400" height="200"></canvas></div>
-  <div id="harvestStats"><h3>Harvest Stats</h3><ul id="harvestSummary"></ul></div>
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-title">Total Harvests</div>
+      <div class="metric-value" id="metricHarvests">0</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-title">Active Blocks</div>
+      <div class="metric-value" id="metricBlocks">0</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-title">Next Harvest Block</div>
+      <div class="metric-value" id="metricNext">-</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-title">Avg Yield (g)</div>
+      <div class="metric-value" id="metricYield">-</div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Environmental Trends</h2>
+    <canvas id="envChart" height="150"></canvas>
+  </div>
 </div>
 
-<!-- SETTINGS -->
-<div id="settings" class="tab hidden">
-  <h2>Settings</h2>
-  <button onclick="checkForUpdate()">🔄 Check for Updates</button>
-  <button onclick="clearAllData()">🗑 Clear All Data</button>
-  <p style="margin-top:10px; color:gray; font-size:14px;">App Version: <span id="appVersion"></span></p>
-</div>
-
-<!-- Bottom Navigation -->
+<!-- Bottom Nav -->
 <div class="bottom-nav">
   <button onclick="showTab('home')" id="nav-home" class="active"><i class="material-icons">home</i>Home</button>
   <button onclick="showTab('daily')" id="nav-daily"><i class="material-icons">event_note</i>Daily</button>
   <button onclick="showTab('harvest')" id="nav-harvest"><i class="material-icons">local_florist</i>Harvest</button>
   <button onclick="showTab('block')" id="nav-block"><i class="material-icons">apps</i>Block</button>
   <button onclick="showTab('dashboard')" id="nav-dashboard"><i class="material-icons">insights</i>Dashboard</button>
-  <button onclick="showTab('settings')" id="nav-settings"><i class="material-icons">settings</i>Settings</button>
 </div>
-
-<!-- Modals: Add Block & Edit Block -->
-<div id="addBlockModal" class="modal"><div class="modal-content"><span class="close-btn" onclick="closeAddBlockModal()">✖</span><div class="modal-header">Add New Block</div>
-  <label>Species</label><select id="newSpecies"></select>
-  <label>Block Name</label><input type="text" id="newBlockName" placeholder="Block A, Block B..." />
-  <label>Pin Date</label><input type="date" id="newPinDate" />
-  <button class="save-btn" onclick="saveNewBlock()">Save Block</button>
-</div></div>
-
-<div id="cardModal" class="modal"><div class="modal-content">
-  <span class="close-btn" onclick="closeModal()">✖</span>
-  <div class="modal-header" id="modalTitle"></div>
-  <label>Species</label><input type="text" id="editSpecies" />
-  <label>Block Name</label><input type="text" id="editBlockName" />
-  <label>Pin Date</label><input type="date" id="editPinDate" />
-  <label>Harvest Date</label><input type="date" id="editHarvestDate" />
-  <label>Lot Number</label><input type="text" id="editLotNumber" />
-  <label>Generation</label><input type="text" id="editGeneration" />
-  <button class="save-btn" onclick="saveBlockEdits()">Save Changes</button>
-</div></div>
 
 
 
