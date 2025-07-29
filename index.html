@@ -3,22 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#4caf50">
-
+  <meta name="theme-color" content="#4caf50">
   <title>Mushroom Grow Log</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; }
     h2 { margin-top: 30px; }
     form { margin-bottom: 20px; }
     label { display: block; margin-top: 10px; }
-    input, textarea { width: 100%; padding: 5px; margin-top: 3px; }
+    input, textarea, select { width: 100%; padding: 5px; margin-top: 3px; }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
     .tab-buttons { margin-bottom: 20px; }
     button { margin-right: 10px; }
     .hidden { display: none; }
+    input[type="text"].search-bar { width: 100%; padding: 8px; margin-top: 10px; }
   </style>
-  
 </head>
 <body>
   <h1>Mushroom Grow Log</h1>
@@ -28,6 +27,7 @@
     <button onclick="showTab('daily')">Daily Data</button>
     <button onclick="showTab('harvest')">Harvest Data</button>
     <button onclick="showTab('block')">Block Info</button>
+    <button onclick="showTab('settings')">Settings</button>
   </div>
 
   <!-- Daily Data -->
@@ -35,9 +35,20 @@
     <h2>Daily Data Entry</h2>
     <form id="dailyForm">
       <label>Date <input type="date" name="date" required></label>
-      <label>Species <input type="text" name="species"></label>
-      <label>Treatment <input type="text" name="treatment"></label>
-      <label>Block <input type="text" name="block"></label>
+      <label>Species 
+        <select name="species" id="speciesDaily"></select>
+      </label>
+      <label>Treatment 
+        <select name="treatment" id="treatmentDaily">
+          <option value="4hr">4hr</option>
+          <option value="8hr">8hr</option>
+          <option value="12hr">12hr</option>
+          <option value="No Light">No Light</option>
+        </select>
+      </label>
+      <label>Block 
+        <select name="block" id="blockDaily"></select>
+      </label>
       <label>Growth (mm/day) <input type="number" step="0.1" name="growth"></label>
       <label>Temp (F) <input type="number" step="0.1" name="temp"></label>
       <label>Rel Humidity (%) <input type="number" step="0.1" name="humidity"></label>
@@ -46,6 +57,8 @@
       <label>Flush Height (mm) <input type="number" step="0.1" name="flushHeight"></label>
       <button type="submit">Save Entry</button>
     </form>
+
+    <input type="text" id="searchDaily" class="search-bar" placeholder="Search Daily Logs..." onkeyup="filterTable('dailyTable', this.value)">
     <button onclick="exportCSV('daily')">Export Daily Data CSV</button>
     <table id="dailyTable">
       <thead>
@@ -64,9 +77,20 @@
     <h2>Harvest Data Entry</h2>
     <form id="harvestForm">
       <label>Date <input type="date" name="date" required></label>
-      <label>Species <input type="text" name="species"></label>
-      <label>Treatment (hr) <input type="text" name="treatment"></label>
-      <label>Block <input type="text" name="block"></label>
+      <label>Species 
+        <select name="species" id="speciesHarvest"></select>
+      </label>
+      <label>Treatment (hr)
+        <select name="treatment" id="treatmentHarvest">
+          <option value="4hr">4hr</option>
+          <option value="8hr">8hr</option>
+          <option value="12hr">12hr</option>
+          <option value="No Light">No Light</option>
+        </select>
+      </label>
+      <label>Block 
+        <select name="block" id="blockHarvest"></select>
+      </label>
       <label>Avg Temp (F) <input type="number" step="0.1" name="avgTemp"></label>
       <label>Avg Humidity (%) <input type="number" step="0.1" name="avgHumidity"></label>
       <label>Avg CO₂ (ppm) <input type="number" step="1" name="avgCo2"></label>
@@ -81,6 +105,8 @@
       <label>Notes <textarea name="notes"></textarea></label>
       <button type="submit">Save Entry</button>
     </form>
+
+    <input type="text" id="searchHarvest" class="search-bar" placeholder="Search Harvest Logs..." onkeyup="filterTable('harvestTable', this.value)">
     <button onclick="exportCSV('harvest')">Export Harvest Data CSV</button>
     <table id="harvestTable">
       <thead>
@@ -99,7 +125,18 @@
   <div id="block" class="tab hidden">
     <h2>Block Information</h2>
     <form id="blockForm">
-      <label>Block <input type="text" name="block" required></label>
+      <label>Block 
+        <select name="block" id="blockInfo">
+          <option value="Block A">Block A</option>
+          <option value="Block A-Flush2">Block A-Flush2</option>
+          <option value="Block B">Block B</option>
+          <option value="Block B-Flush2">Block B-Flush2</option>
+          <option value="Block C">Block C</option>
+          <option value="Block C-Flush2">Block C-Flush2</option>
+          <option value="Block D">Block D</option>
+          <option value="Block D-Flush2">Block D-Flush2</option>
+        </select>
+      </label>
       <label>Start Date <input type="date" name="startDate"></label>
       <label>Pin Date <input type="date" name="pinDate"></label>
       <label>Harvest Date <input type="date" name="harvestDate"></label>
@@ -110,6 +147,8 @@
       <label>Time Increase <input type="text" name="timeIncrease"></label>
       <button type="submit">Save Block</button>
     </form>
+
+    <input type="text" id="searchBlock" class="search-bar" placeholder="Search Block Info..." onkeyup="filterTable('blockTable', this.value)">
     <button onclick="exportCSV('block')">Export Block Info CSV</button>
     <table id="blockTable">
       <thead>
@@ -122,14 +161,34 @@
     </table>
   </div>
 
+  <!-- Settings -->
+  <div id="settings" class="tab hidden">
+    <h2>Settings</h2>
+    <button onclick="checkForUpdate()">🔄 Check for Updates</button>
+    <button onclick="clearAllData()">🗑 Clear All Data</button>
+    <p style="margin-top:10px; color:gray; font-size:14px;">
+      App Version: <span id="appVersion"></span>
+    </p>
+  </div>
+
+  <!-- Update Banner -->
+  <div id="updateBanner" style="
+    display:none; position:fixed; bottom:0; width:100%;
+    background:#4caf50; color:white; text-align:center;
+    padding:10px; font-size:16px; cursor:pointer; z-index:1000;">
+    🔄 New version available! Tap here to refresh.
+  </div>
+
 <script>
 const data = { daily: [], harvest: [], block: [] };
 
+// Tab switching
 function showTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.add('hidden'));
   document.getElementById(tab).classList.remove('hidden');
 }
 
+// Handle form submissions
 function handleForm(formId, type, tableId) {
   document.getElementById(formId).addEventListener('submit', e => {
     e.preventDefault();
@@ -143,6 +202,7 @@ function handleForm(formId, type, tableId) {
   });
 }
 
+// Render tables
 function renderTable(type, tableId) {
   const tbody = document.querySelector(`#${tableId} tbody`);
   tbody.innerHTML = '';
@@ -157,6 +217,7 @@ function renderTable(type, tableId) {
   });
 }
 
+// Export CSV
 function exportCSV(type) {
   const rows = JSON.parse(localStorage.getItem(type)) || [];
   if (rows.length === 0) return alert('No data to export');
@@ -170,16 +231,88 @@ function exportCSV(type) {
   a.click();
 }
 
+// Search/filter
+function filterTable(tableId, query) {
+  const table = document.getElementById(tableId);
+  const rows = table.getElementsByTagName('tr');
+  query = query.toLowerCase();
+  for (let i = 1; i < rows.length; i++) {
+    const cells = rows[i].getElementsByTagName('td');
+    let match = false;
+    for (let cell of cells) {
+      if (cell.textContent.toLowerCase().includes(query)) {
+        match = true;
+        break;
+      }
+    }
+    rows[i].style.display = match ? '' : 'none';
+  }
+}
+
+// Initialize forms/tables
 ['daily','harvest','block'].forEach(type => {
   renderTable(type, `${type}Table`);
   handleForm(`${type}Form`, type, `${type}Table`);
 });
+
+// Service Worker + Update Banner
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('service-worker.js')
-    .then(() => console.log('Service Worker Registered'))
-    .catch(err => console.log('Service Worker Error:', err));
+    .then(reg => {
+      console.log('Service Worker Registered');
+      navigator.serviceWorker.addEventListener('message', event => {
+        if (event.data.type === 'UPDATE_AVAILABLE') {
+          const banner = document.getElementById('updateBanner');
+          banner.style.display = 'block';
+          banner.addEventListener('click', () => window.location.reload());
+        }
+      });
+    });
 }
 
+const APP_VERSION = 'v4';
+document.getElementById('appVersion').textContent = APP_VERSION;
+
+function checkForUpdate() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistration().then(reg => {
+      if (reg) reg.update().then(() => alert('Checking for updates...'));
+    });
+  }
+}
+
+function clearAllData() {
+  if (confirm("Are you sure you want to delete all log data? This cannot be undone.")) {
+    localStorage.clear();
+    alert("All log data cleared.");
+    location.reload();
+  }
+}
+
+// Populate species dropdowns
+const speciesList = [
+  "Pleurotus ostreatus (Snow Oyster)",
+  "Pholiota adiposa (Chestnut)",
+  "Hericium erinaceus (Lion's Mane)",
+  "Lentinula edodes (Shiitake)",
+  "Pleurotus citrinolileatus (Golden Oyster)",
+  "Pleurotus djamor (Pink Oyster)",
+  "Pleurotus ostreatus (Blue Oyster)",
+  "Pleurotus pulmonarius (Italian Oyster)"
+];
+
+function populateSpeciesDropdown(id) {
+  const select = document.getElementById(id);
+  speciesList.forEach(sp => {
+    const option = document.createElement('option');
+    option.value = sp;
+    option.textContent = sp;
+    select.appendChild(option);
+  });
+}
+
+populateSpeciesDropdown('speciesDaily');
+populateSpeciesDropdown('speciesHarvest');
 </script>
 </body>
 </html>
