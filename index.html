@@ -6,51 +6,83 @@
   <meta name="theme-color" content="#4caf50">
   <title>Mushroom Grow Log</title>
   <style>
-    body { font-family: 'Arial', sans-serif; margin: 0; background: #f9f9f9; color: #333; }
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      background: #f9f9f9;
+      color: #333;
+    }
     h2 { margin: 16px; }
     .tab { padding: 16px; }
     .hidden { display: none; }
 
     /* Mushroom Cards */
     #homeGrid {
-      display: grid; grid-template-columns: repeat(2, 1fr);
-      gap: 16px; padding: 16px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      padding: 16px;
     }
     .mushroom-card {
-      background: #fff; border-radius: 12px;
+      background: #fff;
+      border-radius: 12px;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      padding: 16px; cursor: pointer; transition: transform 0.2s;
+      padding: 16px;
+      cursor: pointer;
+      transition: transform 0.2s;
     }
     .mushroom-card:hover { transform: translateY(-3px); }
     .mushroom-title { font-weight: bold; font-size: 16px; margin-bottom: 6px; }
     .mushroom-meta { font-size: 13px; color: #666; }
 
     /* Bottom Nav */
-    .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #fff;
-      border-top: 1px solid #ddd; display: flex; justify-content: space-around; padding: 8px 0; }
-    .bottom-nav button { background: none; border: none; font-size: 12px; color: #666;
-      display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+    .bottom-nav {
+      position: fixed; bottom: 0; width: 100%;
+      background: #fff; border-top: 1px solid #ddd;
+      display: flex; justify-content: space-around; padding: 8px 0;
+    }
+    .bottom-nav button {
+      background: none; border: none; font-size: 12px; color: #666;
+      display: flex; flex-direction: column; align-items: center; cursor: pointer;
+    }
     .bottom-nav button.active { color: #4caf50; }
     .bottom-nav i { font-size: 20px; margin-bottom: 4px; }
 
     /* FAB */
     .fab {
-      position: fixed; bottom: 70px; right: 20px;
-      background: #4caf50; color: white; border: none;
-      border-radius: 50%; width: 56px; height: 56px;
+      position: fixed;
+      bottom: 70px;
+      right: 20px;
+      background: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 56px; height: 56px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 28px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); cursor: pointer;
+      font-size: 28px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      cursor: pointer;
     }
 
     /* Modal */
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center; }
-    .modal-content { background: #fff; padding: 20px; border-radius: 12px; width: 90%; max-width: 400px; }
+    .modal {
+      display: none; position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center; align-items: center;
+    }
+    .modal-content {
+      background: #fff; padding: 20px; border-radius: 12px;
+      width: 90%; max-width: 400px;
+    }
     .modal-header { font-weight: bold; margin-bottom: 10px; }
     .close-btn { float: right; cursor: pointer; color: #999; font-size: 18px; }
     label { display: block; margin-top: 10px; font-size: 14px; }
     input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; border: 1px solid #ddd; border-radius: 6px; }
-    button.save-btn { margin-top: 12px; width: 100%; padding: 10px; background: #4caf50; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; }
+    button.save-btn {
+      margin-top: 12px; width: 100%; padding: 10px; background: #4caf50; color: white; border: none; border-radius: 6px;
+      font-size: 16px; cursor: pointer;
+    }
 
     input[type="text"].search-bar { width: 100%; padding: 8px; margin-top: 10px; }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #fff; }
@@ -61,14 +93,14 @@
 </head>
 <body>
 
-<!-- ===== TABS (HOME, DAILY, HARVEST, BLOCK, DASHBOARD, SETTINGS) ===== -->
+<!-- HOME -->
 <div id="home" class="tab">
   <h2>Mushroom Blocks</h2>
   <div id="homeGrid"></div>
   <button class="fab" onclick="openAddBlockModal()">+</button>
 </div>
 
-<!-- DAILY TAB -->
+<!-- DAILY -->
 <div id="daily" class="tab hidden">
   <h2>Daily Data Entry</h2>
   <form id="dailyForm">
@@ -91,10 +123,15 @@
   </form>
   <input type="text" id="searchDaily" class="search-bar" placeholder="Search Daily Logs..." onkeyup="filterTable('dailyTable', this.value)">
   <button onclick="exportCSV('daily')">Export Daily Data CSV</button>
-  <table id="dailyTable"><thead><tr><th>Date</th><th>Species</th><th>Treatment</th><th>Block</th><th>Growth</th><th>Temp</th><th>Humidity</th><th>CO₂</th><th>Notes</th><th>Flush Height</th></tr></thead><tbody></tbody></table>
+  <table id="dailyTable">
+    <thead>
+      <tr><th>Date</th><th>Species</th><th>Treatment</th><th>Block</th><th>Growth</th><th>Temp</th><th>Humidity</th><th>CO₂</th><th>Notes</th><th>Flush Height</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </div>
 
-<!-- HARVEST TAB -->
+<!-- HARVEST -->
 <div id="harvest" class="tab hidden">
   <h2>Harvest Data Entry</h2>
   <form id="harvestForm">
@@ -124,15 +161,57 @@
   </form>
   <input type="text" id="searchHarvest" class="search-bar" placeholder="Search Harvest Logs..." onkeyup="filterTable('harvestTable', this.value)">
   <button onclick="exportCSV('harvest')">Export Harvest Data CSV</button>
-  <table id="harvestTable"><thead><tr><th>Date</th><th>Species</th><th>Treatment</th><th>Block</th><th>Avg Temp</th><th>Humidity</th><th>CO₂</th><th>Cap</th><th>Stem</th><th>Flush H</th><th>Flush W</th><th>Flush L</th><th>Pin Date</th><th>Time</th><th>Yield</th><th>Notes</th></tr></thead><tbody></tbody></table>
+  <table id="harvestTable">
+    <thead>
+      <tr><th>Date</th><th>Species</th><th>Treatment</th><th>Block</th><th>Avg Temp</th><th>Humidity</th><th>CO₂</th><th>Cap</th><th>Stem</th><th>Flush H</th><th>Flush W</th><th>Flush L</th><th>Pin Date</th><th>Time</th><th>Yield</th><th>Notes</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </div>
 
-<!-- BLOCK, DASHBOARD, SETTINGS TABS (unchanged) -->
-<div id="block" class="tab hidden"><h2>Block Info</h2>...</div>
-<div id="dashboard" class="tab hidden"><h2>Quick Summary Dashboard</h2>...</div>
-<div id="settings" class="tab hidden"><h2>Settings</h2>...</div>
+<!-- BLOCK -->
+<div id="block" class="tab hidden">
+  <h2>Block Information</h2>
+  <form id="blockForm">
+    <label>Block <select name="block" id="blockInfo"></select></label>
+    <label>Start Date <input type="date" name="startDate"></label>
+    <label>Pin Date <input type="date" name="pinDate"></label>
+    <label>Harvest Date <input type="date" name="harvestDate"></label>
+    <label>Lot Number <input type="text" name="lotNumber"></label>
+    <label>Generation <input type="text" name="generation"></label>
+    <label>Growth Rate <input type="text" name="growthRate"></label>
+    <label>Slice Type <input type="text" name="sliceType"></label>
+    <label>Time Increase <input type="text" name="timeIncrease"></label>
+    <button type="submit">Save Block</button>
+  </form>
+  <input type="text" id="searchBlock" class="search-bar" placeholder="Search Block Info..." onkeyup="filterTable('blockTable', this.value)">
+  <button onclick="exportCSV('block')">Export Block Info CSV</button>
+  <table id="blockTable">
+    <thead>
+      <tr><th>Block</th><th>Start</th><th>Pin</th><th>Harvest</th><th>Lot</th><th>Gen</th><th>Growth Rate</th><th>Slice Type</th><th>Time+</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
 
-<!-- BOTTOM NAV -->
+<!-- DASHBOARD -->
+<div id="dashboard" class="tab hidden">
+  <h2>Quick Summary Dashboard</h2>
+  <div id="keyStats"><h3>Key Metrics</h3><ul id="metricsList"></ul></div>
+  <div id="activeBlocks"><h3>Active Blocks</h3><table><thead><tr><th>Block</th><th>Pin Date</th><th>Harvest Date</th><th>Days Since Pin</th></tr></thead><tbody id="activeBlocksBody"></tbody></table></div>
+  <div id="envTrends"><h3>Environmental Trends (Last 7 Days)</h3><canvas id="envChart" width="400" height="200"></canvas></div>
+  <div id="harvestStats"><h3>Harvest Stats</h3><ul id="harvestSummary"></ul></div>
+</div>
+
+<!-- SETTINGS -->
+<div id="settings" class="tab hidden">
+  <h2>Settings</h2>
+  <button onclick="checkForUpdate()">🔄 Check for Updates</button>
+  <button onclick="clearAllData()">🗑 Clear All Data</button>
+  <p style="margin-top:10px; color:gray; font-size:14px;">App Version: <span id="appVersion"></span></p>
+</div>
+
+<!-- Bottom Navigation -->
 <div class="bottom-nav">
   <button onclick="showTab('home')" id="nav-home" class="active"><i class="material-icons">home</i>Home</button>
   <button onclick="showTab('daily')" id="nav-daily"><i class="material-icons">event_note</i>Daily</button>
@@ -142,7 +221,7 @@
   <button onclick="showTab('settings')" id="nav-settings"><i class="material-icons">settings</i>Settings</button>
 </div>
 
-<!-- MODALS (Add/Edit Block) -->
+<!-- Modals: Add Block & Edit Block -->
 <div id="addBlockModal" class="modal"><div class="modal-content"><span class="close-btn" onclick="closeAddBlockModal()">✖</span><div class="modal-header">Add New Block</div>
   <label>Species</label><select id="newSpecies"></select>
   <label>Block Name</label><input type="text" id="newBlockName" placeholder="Block A, Block B..." />
@@ -161,6 +240,8 @@
   <label>Generation</label><input type="text" id="editGeneration" />
   <button class="save-btn" onclick="saveBlockEdits()">Save Changes</button>
 </div></div>
+
+
 
 <script>
     /* ====== GLOBAL STORAGE ====== */
