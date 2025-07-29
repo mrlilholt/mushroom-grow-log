@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4caf50">
+
+  <title>Mushroom Grow Log</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h2 { margin-top: 30px; }
+    form { margin-bottom: 20px; }
+    label { display: block; margin-top: 10px; }
+    input, textarea { width: 100%; padding: 5px; margin-top: 3px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    .tab-buttons { margin-bottom: 20px; }
+    button { margin-right: 10px; }
+    .hidden { display: none; }
+  </style>
+  
+</head>
+<body>
+  <h1>Mushroom Grow Log</h1>
+  
+  <!-- Tab Buttons -->
+  <div class="tab-buttons">
+    <button onclick="showTab('daily')">Daily Data</button>
+    <button onclick="showTab('harvest')">Harvest Data</button>
+    <button onclick="showTab('block')">Block Info</button>
+  </div>
+
+  <!-- Daily Data -->
+  <div id="daily" class="tab">
+    <h2>Daily Data Entry</h2>
+    <form id="dailyForm">
+      <label>Date <input type="date" name="date" required></label>
+      <label>Species <input type="text" name="species"></label>
+      <label>Treatment <input type="text" name="treatment"></label>
+      <label>Block <input type="text" name="block"></label>
+      <label>Growth (mm/day) <input type="number" step="0.1" name="growth"></label>
+      <label>Temp (F) <input type="number" step="0.1" name="temp"></label>
+      <label>Rel Humidity (%) <input type="number" step="0.1" name="humidity"></label>
+      <label>CO₂ (ppm) <input type="number" step="1" name="co2"></label>
+      <label>Notes <textarea name="notes"></textarea></label>
+      <label>Flush Height (mm) <input type="number" step="0.1" name="flushHeight"></label>
+      <button type="submit">Save Entry</button>
+    </form>
+    <button onclick="exportCSV('daily')">Export Daily Data CSV</button>
+    <table id="dailyTable">
+      <thead>
+        <tr>
+          <th>Date</th><th>Species</th><th>Treatment</th><th>Block</th>
+          <th>Growth</th><th>Temp</th><th>Humidity</th><th>CO₂</th>
+          <th>Notes</th><th>Flush Height</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- Harvest Data -->
+  <div id="harvest" class="tab hidden">
+    <h2>Harvest Data Entry</h2>
+    <form id="harvestForm">
+      <label>Date <input type="date" name="date" required></label>
+      <label>Species <input type="text" name="species"></label>
+      <label>Treatment (hr) <input type="text" name="treatment"></label>
+      <label>Block <input type="text" name="block"></label>
+      <label>Avg Temp (F) <input type="number" step="0.1" name="avgTemp"></label>
+      <label>Avg Humidity (%) <input type="number" step="0.1" name="avgHumidity"></label>
+      <label>Avg CO₂ (ppm) <input type="number" step="1" name="avgCo2"></label>
+      <label>Cap Diameter (mm) <input type="number" step="0.1" name="capDiameter"></label>
+      <label>Stem Length (mm) <input type="number" step="0.1" name="stemLength"></label>
+      <label>Flush Height (mm) <input type="number" step="0.1" name="flushHeight"></label>
+      <label>Flush Width (mm) <input type="number" step="0.1" name="flushWidth"></label>
+      <label>Flush Length (mm) <input type="number" step="0.1" name="flushLength"></label>
+      <label>Pin-Set Date <input type="date" name="pinDate"></label>
+      <label>Time-to-Fruit (days) <input type="number" name="timeToFruit"></label>
+      <label>Fresh Weight/Yield (g) <input type="number" step="0.1" name="yield"></label>
+      <label>Notes <textarea name="notes"></textarea></label>
+      <button type="submit">Save Entry</button>
+    </form>
+    <button onclick="exportCSV('harvest')">Export Harvest Data CSV</button>
+    <table id="harvestTable">
+      <thead>
+        <tr>
+          <th>Date</th><th>Species</th><th>Treatment</th><th>Block</th>
+          <th>Avg Temp</th><th>Humidity</th><th>CO₂</th><th>Cap</th>
+          <th>Stem</th><th>Flush H</th><th>Flush W</th><th>Flush L</th>
+          <th>Pin Date</th><th>Time</th><th>Yield</th><th>Notes</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- Block Info -->
+  <div id="block" class="tab hidden">
+    <h2>Block Information</h2>
+    <form id="blockForm">
+      <label>Block <input type="text" name="block" required></label>
+      <label>Start Date <input type="date" name="startDate"></label>
+      <label>Pin Date <input type="date" name="pinDate"></label>
+      <label>Harvest Date <input type="date" name="harvestDate"></label>
+      <label>Lot Number <input type="text" name="lotNumber"></label>
+      <label>Generation <input type="text" name="generation"></label>
+      <label>Growth Rate <input type="text" name="growthRate"></label>
+      <label>Slice Type <input type="text" name="sliceType"></label>
+      <label>Time Increase <input type="text" name="timeIncrease"></label>
+      <button type="submit">Save Block</button>
+    </form>
+    <button onclick="exportCSV('block')">Export Block Info CSV</button>
+    <table id="blockTable">
+      <thead>
+        <tr>
+          <th>Block</th><th>Start</th><th>Pin</th><th>Harvest</th>
+          <th>Lot</th><th>Gen</th><th>Growth Rate</th><th>Slice Type</th><th>Time+</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+<script>
+const data = { daily: [], harvest: [], block: [] };
+
+function showTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.add('hidden'));
+  document.getElementById(tab).classList.remove('hidden');
+}
+
+function handleForm(formId, type, tableId) {
+  document.getElementById(formId).addEventListener('submit', e => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const entry = {};
+    formData.forEach((value, key) => entry[key] = value);
+    data[type].push(entry);
+    localStorage.setItem(type, JSON.stringify(data[type]));
+    renderTable(type, tableId);
+    e.target.reset();
+  });
+}
+
+function renderTable(type, tableId) {
+  const tbody = document.querySelector(`#${tableId} tbody`);
+  tbody.innerHTML = '';
+  (JSON.parse(localStorage.getItem(type)) || []).forEach(entry => {
+    const row = document.createElement('tr');
+    Object.values(entry).forEach(val => {
+      const cell = document.createElement('td');
+      cell.textContent = val;
+      row.appendChild(cell);
+    });
+    tbody.appendChild(row);
+  });
+}
+
+function exportCSV(type) {
+  const rows = JSON.parse(localStorage.getItem(type)) || [];
+  if (rows.length === 0) return alert('No data to export');
+  const headers = Object.keys(rows[0]).join(',');
+  const csv = [headers, ...rows.map(r => Object.values(r).join(','))].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${type}_data.csv`;
+  a.click();
+}
+
+['daily','harvest','block'].forEach(type => {
+  renderTable(type, `${type}Table`);
+  handleForm(`${type}Form`, type, `${type}Table`);
+});
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js')
+    .then(() => console.log('Service Worker Registered'))
+    .catch(err => console.log('Service Worker Error:', err));
+}
+
+</script>
+</body>
+</html>
