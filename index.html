@@ -18,6 +18,8 @@
     .hidden { display: none; }
     input[type="text"].search-bar { width: 100%; padding: 8px; margin-top: 10px; }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 <body>
   <h1>Mushroom Grow Log</h1>
@@ -28,6 +30,8 @@
     <button onclick="showTab('harvest')">Harvest Data</button>
     <button onclick="showTab('block')">Block Info</button>
     <button onclick="showTab('settings')">Settings</button>
+    <button onclick="showTab('dashboard')">Dashboard</button>
+
   </div>
 
   <!-- Daily Data -->
@@ -182,6 +186,40 @@
     padding:10px; font-size:16px; cursor:pointer; z-index:1000;">
     🔄 New version available! Tap here to refresh.
   </div>
+
+  <div id="dashboard" class="tab hidden">
+    <h2>Quick Summary Dashboard</h2>
+  
+    <!-- Key Stats -->
+    <div id="keyStats">
+      <h3>Key Metrics</h3>
+      <ul id="metricsList"></ul>
+    </div>
+  
+    <!-- Active Blocks -->
+    <div id="activeBlocks">
+      <h3>Active Blocks</h3>
+      <table>
+        <thead>
+          <tr><th>Block</th><th>Pin Date</th><th>Harvest Date</th><th>Days Since Pin</th></tr>
+        </thead>
+        <tbody id="activeBlocksBody"></tbody>
+      </table>
+    </div>
+  
+    <!-- Environmental Trends -->
+    <div id="envTrends">
+      <h3>Environmental Trends (Last 7 Days)</h3>
+      <canvas id="envChart" width="400" height="200"></canvas>
+    </div>
+  
+    <!-- Harvest Stats -->
+    <div id="harvestStats">
+      <h3>Harvest Stats</h3>
+      <ul id="harvestSummary"></ul>
+    </div>
+  </div>
+  
 
 <script>
 const data = { daily: [], harvest: [], block: [] };
@@ -422,6 +460,103 @@ function flashHighlight(element) {
   setTimeout(() => {
     element.style.backgroundColor = "";
   }, 800);
+}
+
+// Load Dashboard Data on Tab Open
+function loadDashboard() {
+  loadKeyMetrics();
+  loadActiveBlocks();
+  loadEnvTrends();
+  loadHarvestStats();
+}
+
+// Auto-run dashboard load when tab is opened
+document.querySelector('button[onclick="showTab(\'dashboard\')"]').addEventListener('click', loadDashboard);
+
+// ---------------- KEY METRICS ----------------
+function loadKeyMetrics() {
+  const blockLogs = JSON.parse(localStorage.getItem('block')) || [];
+  const harvestLogs = JSON.parse(localStorage.getItem('harvest')) || [];
+
+  const metricsList = document.getElementById('metricsList');
+  metricsList.innerHTML = '';
+
+  const totalHarvests = harvestLogs.length;
+  const recentHarvest = harvestLogs.slice(-1)[0]?.yield || "N/A";
+  const nextHarvestBlock = blockLogs.find(b => !b.harvestDate)?.block || "None Pending";
+
+  metricsList.innerHTML = `
+    <li><strong>Total Harvests:</strong> ${totalHarvests}</li>
+    <li><strong>Most Recent Harvest Weight:</strong> ${recentHarvest} g</li>
+    <li><strong>Next Harvest Block:</strong> ${nextHarvestBlock}</li>
+  `;
+}
+
+// ---------------- ACTIVE BLOCKS ----------------
+function loadActiveBlocks() {
+  const blockLogs = JSON.parse(localStorage.getItem('block')) || [];
+  const tbody = document.getElementById('activeBlocksBody');
+  tbody.innerHTML = '';
+
+  blockLogs.forEach(block => {
+    if (!block.harvestDate) { // Show only active blocks
+      const pinDate = block.pinDate || "N/A";
+      const daysSincePin = block.pinDate ? Math.round((new Date() - new Date(block.pinDate)) / (1000 * 60 * 60 * 24)) : "-";
+
+      const row = `<tr>
+        <td>${block.block}</td>
+        <td>${pinDate}</td>
+        <td>${block.harvestDate || "-"}</td>
+        <td>${daysSincePin}</td>
+      </tr>`;
+      tbody.insertAdjacentHTML('beforeend', row);
+    }
+  });
+}
+
+// ---------------- ENVIRONMENTAL TRENDS ----------------
+function loadEnvTrends() {
+  const dailyLogs = JSON.parse(localStorage.getItem('daily')) || [];
+  const last7 = dailyLogs.slice(-7); // last 7 entries
+
+  const labels = last7.map(l => l.date);
+  const temps = last7.map(l => parseFloat(l.temp) || 0);
+  const humidity = last7.map(l => parseFloat(l.humidity) || 0);
+  const co2 = last7.map(l => parseFloat(l.co2) || 0);
+
+  const ctx = document.getElementById('envChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'Temp (F)', data: temps, borderColor: 'red', fill: false },
+        { label: 'Humidity (%)', data: humidity, borderColor: 'blue', fill: false },
+        { label: 'CO₂ (ppm)', data: co2, borderColor: 'green', fill: false }
+      ]
+    },
+    options: { responsive: true }
+  });
+}
+
+// ---------------- HARVEST STATS ----------------
+function loadHarvestStats() {
+  const harvestLogs = JSON.parse(localStorage.getItem('harvest')) || [];
+  const summaryList = document.getElementById('harvestSummary');
+  summaryList.innerHTML = '';
+
+  if (harvestLogs.length === 0) {
+    summaryList.innerHTML = `<li>No harvest data yet.</li>`;
+    return;
+  }
+
+  const avgYield = (harvestLogs.reduce((sum, h) => sum + parseFloat(h.yield || 0), 0) / harvestLogs.length).toFixed(1);
+  const flushCount = harvestLogs.length;
+
+  summaryList.innerHTML = `
+    <li><strong>Total Flushes:</strong> ${flushCount}</li>
+    <li><strong>Average Yield:</strong> ${avgYield} g</li>
+  `;
 }
 </script>
 </body>
